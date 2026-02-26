@@ -5,11 +5,10 @@ import 'package:image_picker/image_picker.dart';
 
 import '../model/product_model.dart';
 import '../../../../services/product_service.dart';
-import 'dashboard_controller.dart';
 
 class ProductController extends GetxController {
   final ProductService _service = Get.find<ProductService>();
-
+  final selectedTab = 'Ongoing'.obs;
   final isLoading = false.obs;
   final isCreating = false.obs;
   final errorMessage = ''.obs;
@@ -23,9 +22,20 @@ class ProductController extends GetxController {
     super.onInit();
   }
 
-  // ================================
+  // =====================================
+  // PRIVATE SORT METHOD (LATEST FIRST)
+  // =====================================
+  void _sortByLatest() {
+    products.sort((a, b) {
+      final aDate = a.createdAt ?? DateTime(2000);
+      final bDate = b.createdAt ?? DateTime(2000);
+      return bDate.compareTo(aDate); // Descending
+    });
+  }
+
+  // =====================================
   // IMAGE
-  // ================================
+  // =====================================
   Future<void> pickImage() async {
     final picked =
     await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -39,9 +49,9 @@ class ProductController extends GetxController {
     selectedImage.value = null;
   }
 
-  // ================================
+  // =====================================
   // GET PRODUCTS
-  // ================================
+  // =====================================
   Future<void> fetchProducts() async {
     try {
       isLoading.value = true;
@@ -54,6 +64,8 @@ class ProductController extends GetxController {
         products.assignAll(
           list.map((e) => ProductModel.fromJson(e)).toList(),
         );
+
+        _sortByLatest(); // 🔥 Always keep latest first
       }
     } catch (_) {
       Get.snackbar("Error", "Failed to load products");
@@ -62,9 +74,9 @@ class ProductController extends GetxController {
     }
   }
 
-  // ================================
+  // =====================================
   // CREATE PRODUCT
-  // ================================
+  // =====================================
   Future<void> createProduct({
     required String name,
     required double price,
@@ -105,17 +117,13 @@ class ProductController extends GetxController {
         final newProduct =
         ProductModel.fromJson(res.data["data"]);
 
-        products.insert(0, newProduct);
+        products.insert(0, newProduct); // 🔥 Latest on top
+        _sortByLatest();
 
         clearImage();
-
         Get.back();
 
         Get.snackbar("Success", "Product created successfully");
-
-        if (Get.isRegistered<DashboardController>()) {
-          Get.find<DashboardController>().fetchProducts();
-        }
       } else {
         Get.snackbar(
             "Error", res.data["message"] ?? "Create failed");
@@ -126,6 +134,75 @@ class ProductController extends GetxController {
           e.response?.data["message"] ?? "Create failed");
     } finally {
       isCreating.value = false;
+    }
+  }
+
+  // =====================================
+  // UPDATE PRODUCT
+  // =====================================
+  Future<void> updateProduct({
+    required String id,
+    required ProductModel product,
+  }) async {
+    try {
+      isCreating.value = true;
+
+      final res = await _service.updateProduct(
+        id: id,
+        product: product,
+        imageFile: selectedImage.value,
+      );
+
+      if (res.statusCode == 200 && res.data["success"] == true) {
+        final updatedProduct =
+        ProductModel.fromJson(res.data["data"]);
+
+        final index =
+        products.indexWhere((p) => p.id == id);
+
+        if (index != -1) {
+          products[index] = updatedProduct;
+          _sortByLatest(); // 🔥 Keep order correct
+          products.refresh();
+        }
+
+        clearImage();
+        Get.back();
+
+        Get.snackbar("Success", "Product updated successfully");
+      } else {
+        Get.snackbar(
+            "Error", res.data["message"] ?? "Update failed");
+      }
+    } on dio.DioException catch (e) {
+      Get.snackbar(
+          "Error",
+          e.response?.data["message"] ?? "Update failed");
+    } finally {
+      isCreating.value = false;
+    }
+  }
+
+  // =====================================
+  // DELETE PRODUCT
+  // =====================================
+  Future<void> deleteProduct(String id) async {
+    try {
+      isLoading.value = true;
+
+      final res = await _service.deleteProduct(id);
+
+      if (res.statusCode == 200 && res.data["success"] == true) {
+        products.removeWhere((p) => p.id == id);
+
+        Get.snackbar("Success", "Product deleted successfully");
+      } else {
+        Get.snackbar("Error", res.data["message"] ?? "Delete failed");
+      }
+    } catch (_) {
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      isLoading.value = false;
     }
   }
 }

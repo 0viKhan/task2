@@ -17,25 +17,26 @@ dependencies:
   # 🔥 State Management + Routing + Dependency Injection
   get: ^4.6.6
 
-  # 🌐 API Client (Use Dio – Remove http)
+  # 🌐 API Client
   dio: ^5.9.1
 
   # 💾 Local Database
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
-  # 🔐 Small Data Storage (Token, Flags)
+  # 🔐 Small Data Storage
   shared_preferences: ^2.2.3
-
 
   # 🌍 Internet Check
   connectivity_plus: ^5.0.2
   image_picker: ^1.0.7
 
+  # ✅ Responsive
+  flutter_screenutil: ^5.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^6.0.0
 
   # Hive Code Generation

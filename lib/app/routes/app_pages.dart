@@ -9,7 +9,6 @@ import '../features/auth/profile/view/profile_setup_view.dart';
 import '../features/auth/profile/view/profile_view.dart';
 import '../features/auth/reset/views/reset_view.dart';
 import '../features/auth/verify/verify_view.dart';
-import '../features/product/bindings/dashboard_binding.dart';
 import '../features/product/bindings/product_binding.dart';
 import '../features/product/views/EditProductView.dart';
 import '../features/product/views/add_product_view.dart';
@@ -79,22 +78,24 @@ class AppPages {
     GetPage(
       name: AppRoutes.dashboard,
       page: () => const DashboardView(),
-      binding: DashboardBinding(),
+      binding: ProductBinding(),
     ),
     GetPage(
       name: AppRoutes.serviceDetail,
       page: () => const ServiceDetailView(),
     ),
-    GetPage(
-      name: AppRoutes.editProduct,
-      page: () => const EditProductView(),
-    ),
+
     GetPage(
       name: AppRoutes.addProduct,
       page: () => const AddProductView(),
-      binding: ProductBinding(), // ✅ ADD THIS
+      binding: ProductBinding(),
     ),
 
+    GetPage(
+      name: AppRoutes.editProduct,
+      page: () => const EditProductView(),
+      binding: ProductBinding(),
+    ),
 
 
   ];

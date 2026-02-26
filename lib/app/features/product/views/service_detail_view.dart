@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../routes/app_routes.dart';
+import '../controllers/product_controller.dart';
 import '../model/product_model.dart';
 
 class ServiceDetailView extends StatelessWidget {
@@ -15,42 +16,76 @@ class ServiceDetailView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-
             /// 🔹 Top Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Get.back(),
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.arrow_back, size: 20),
                     ),
                   ),
                   const Expanded(
-                    child: Center(
-                      child: Text(
-                        "Product Detail",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    child: Text(
+                      "Service Detail",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  CircleAvatar(
-                    backgroundColor: Colors.red.shade100,
-                    child: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
+                  GestureDetector(
+                    onTap: () {
+                      final ProductController controller = Get.find();
+
+                      if (product.id == null) {
+                        Get.snackbar("Error", "Invalid product ID");
+                        return;
+                      }
+
+                      Get.defaultDialog(
+                        title: "Confirm Delete",
+                        middleText:
+                        "Are you sure you want to delete this product?",
+                        textConfirm: "Delete",
+                        textCancel: "Cancel",
+                        confirmTextColor: Colors.white,
+                        onConfirm: () async {
+                          Get.back();
+                          await controller.deleteProduct(product.id!);
+                          Get.back();
+                        },
+                      );
+                    },
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.delete, color: Colors.red.shade600, size: 20),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 10),
 
             /// 🔹 Body Container
             Expanded(
@@ -66,19 +101,18 @@ class ServiceDetailView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       /// 🖼 Image
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Stack(
                           children: [
                             Image.network(
-                              product.image ?? "https://via.placeholder.com/300",
+                              product.image ??
+                                  "https://via.placeholder.com/300",
                               height: 200,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
-
                             if (product.category != null)
                               Positioned(
                                 top: 12,
@@ -98,7 +132,7 @@ class ServiceDetailView extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              )
+                              ),
                           ],
                         ),
                       ),
@@ -110,12 +144,33 @@ class ServiceDetailView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              product.name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  product.name,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    "active",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.blue.shade600,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Text(
@@ -134,20 +189,19 @@ class ServiceDetailView extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            product.stock > 0
-                                ? "✓ In Stock"
-                                : "Out of Stock",
+                            product.stock > 0 ? "✓ In Stock" : "Out of Stock",
                             style: TextStyle(
                               color: product.stock > 0
                                   ? Colors.green
                                   : Colors.red,
                               fontSize: 12,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const Spacer(),
                           if (product.isDiscounted == true)
                             Text(
-                              "Discount: ${product.discountPercent ?? 0}%",
+                              "Discount: \$${product.discountPercent ?? 0}",
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.black54,
@@ -177,21 +231,26 @@ class ServiceDetailView extends StatelessWidget {
                         spacing: 10,
                         runSpacing: 10,
                         children: [
-
-                          if (product.weight != null)
-                            _Chip(text: "Weight: ${product.weight} kg"),
-
-                          if (product.dimensions != null)
-                            _Chip(text: "Size: ${product.dimensions}"),
-
-                          if (product.colors != null)
-                            ...product.colors!
-                                .map((c) => _Chip(text: c))
-                                .toList(),
+                          if (product.category != null)
+                            _Chip(text: "${product.category} Catagorie"),
 
                           if (product.tags != null)
                             ...product.tags!
                                 .map((t) => _Chip(text: t))
+                                .toList(),
+
+                          if (product.brand != null)
+                            _Chip(text: "${product.brand} Brand"),
+
+                          if (product.weight != null)
+                            _Chip(text: "Weight: ${product.weight}"),
+
+                          if (product.dimensions != null)
+                            _Chip(text: "Dimensions: ${product.dimensions}"),
+
+                          if (product.colors != null)
+                            ...product.colors!
+                                .map((c) => _Chip(text: c))
                                 .toList(),
                         ],
                       ),
@@ -208,14 +267,7 @@ class ServiceDetailView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          product.description!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            height: 1.5,
-                            color: Colors.black54,
-                          ),
-                        ),
+                        _ExpandableText(text: product.description!),
                       ],
 
                       const SizedBox(height: 30),
@@ -226,11 +278,9 @@ class ServiceDetailView extends StatelessWidget {
                         height: 54,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                            const Color(0xFF2F6FED),
+                            backgroundColor: const Color(0xFF2F6FED),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(28),
+                              borderRadius: BorderRadius.circular(28),
                             ),
                           ),
                           onPressed: () {
@@ -244,6 +294,7 @@ class ServiceDetailView extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -252,10 +303,54 @@ class ServiceDetailView extends StatelessWidget {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Expandable description text with "Read More" toggle
+class _ExpandableText extends StatefulWidget {
+  final String text;
+
+  const _ExpandableText({required this.text});
+
+  @override
+  State<_ExpandableText> createState() => _ExpandableTextState();
+}
+
+class _ExpandableTextState extends State<_ExpandableText> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.text,
+          maxLines: _expanded ? null : 4,
+          overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.5,
+            color: Colors.black54,
+          ),
+        ),
+        GestureDetector(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Text(
+            _expanded ? "Read Less" : "Read More",
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2F6FED),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

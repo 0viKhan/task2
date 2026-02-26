@@ -39,15 +39,13 @@ class SplashController extends GetxController
   Future<void> _navigateNext() async {
     await Future.delayed(const Duration(seconds: 3));
 
-    final token = await PrefService.to.getToken();
+    final token = PrefService.getString("token");
 
     debugPrint("TOKEN FROM STORAGE: $token");
 
     if (token != null && token.isNotEmpty) {
-      debugPrint("Splash: Token found → Dashboard");
       Get.offAllNamed(AppRoutes.dashboard);
     } else {
-      debugPrint("Splash: No token → Onboarding");
       Get.offAllNamed(AppRoutes.onboarding);
     }
   }

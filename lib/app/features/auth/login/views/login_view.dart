@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../routes/app_routes.dart';
+import '../../forgot/views/forgot_view.dart';
 import '../controller/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
@@ -22,37 +23,38 @@ class LoginView extends GetView<LoginController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+
                 const SizedBox(height: 40),
 
-                /// Icon
+                /// Top Icon
                 Container(
-                  width: 70,
-                  height: 70,
+                  height: 90,
+                  width: 90,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color(0xFFEAF2FF),
                   ),
                   child: const Icon(
                     Icons.menu_book_rounded,
-                    size: 34,
+                    size: 45,
                     color: Color(0xFF2F6FED),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 const Text(
                   "Welcome Back!",
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 30,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 const Text(
-                  "Login to continue",
+                  "Please login first to start your Theory Test.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -60,9 +62,9 @@ class LoginView extends GetView<LoginController> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
 
-                /// Email
+                /// Email Field
                 _CustomField(
                   label: "Email Address",
                   controller: emailController,
@@ -78,9 +80,9 @@ class LoginView extends GetView<LoginController> {
                   },
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 20),
 
-                /// Password
+                /// Password Field
                 Obx(() => _CustomField(
                   label: "Password",
                   controller: passController,
@@ -91,6 +93,7 @@ class LoginView extends GetView<LoginController> {
                       controller.isObscure.value
                           ? Icons.visibility_off
                           : Icons.visibility,
+                      color: Colors.grey,
                     ),
                   ),
                   validator: (value) {
@@ -104,29 +107,62 @@ class LoginView extends GetView<LoginController> {
                   },
                 )),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 16),
 
-                /// Sign In Button
-                Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2F6FED),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                /// Remember Me + Forgot Password
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Remember Me",
+                      style: TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 14,
                       ),
                     ),
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () {
-                      if (formKey.currentState!.validate()) {
-                        controller.loginUser(
-                          email: emailController.text.trim(),
-                          password: passController.text.trim(),
-                        );
-                      }
-                    },
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const ForgotView());
+                      },
+                      child: const Text(
+                        "Forgot Password",
+                        style: TextStyle(
+                          color: Color(0xFF2F6FED),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                /// Gradient Sign In Button
+                Obx(() => GestureDetector(
+                  onTap: controller.isLoading.value
+                      ? null
+                      : () {
+                    if (formKey.currentState!.validate()) {
+                      controller.loginUser(
+                        email: emailController.text.trim(),
+                        password: passController.text.trim(),
+                      );
+                    }
+                  },
+                  child: Container(
+                    height: 56,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF2F6FED),
+                          Color(0xFF1C4ED8),
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
                     child: controller.isLoading.value
                         ? const CircularProgressIndicator(
                       color: Colors.white,
@@ -134,26 +170,26 @@ class LoginView extends GetView<LoginController> {
                         : const Text(
                       "Sign In",
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 )),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 28),
 
-                /// Bottom
+                /// Bottom Text
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "New here? ",
+                      "New to Theory Test? ",
                       style: TextStyle(color: Color(0xFF6B7280)),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Get.toNamed(AppRoutes.register),
+                      onTap: () => Get.toNamed(AppRoutes.register),
                       child: const Text(
                         "Create Account",
                         style: TextStyle(
@@ -199,7 +235,9 @@ class _CustomField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -208,11 +246,23 @@ class _CustomField extends StatelessWidget {
           obscureText: obscureText,
           validator: validator,
           decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
             contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             suffixIcon: suffix,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide:
+              const BorderSide(color: Color(0xFF2F6FED), width: 1.5),
             ),
           ),
         ),

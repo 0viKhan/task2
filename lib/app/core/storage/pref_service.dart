@@ -1,27 +1,32 @@
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefService extends GetxService {
-  static PrefService get to => Get.find<PrefService>();
+  static SharedPreferences? _prefs;
 
-  final _box = GetStorage();
-
-  static const _tokenKey = "token";
-
+  /// 🔥 Initialize (app start এ call হবে)
   Future<PrefService> init() async {
-    await GetStorage.init();
+    _prefs = await SharedPreferences.getInstance();
     return this;
   }
 
-  Future<void> saveToken(String token) async {
-    await _box.write(_tokenKey, token);
+  /// 🔹 Save String
+  static Future<void> setString(String key, String value) async {
+    await _prefs?.setString(key, value);
   }
 
-  String? getToken() {
-    return _box.read<String>(_tokenKey);
+  /// 🔹 Get String
+  static String? getString(String key) {
+    return _prefs?.getString(key);
   }
 
-  Future<void> clearToken() async {
-    await _box.remove(_tokenKey);
+  /// 🔹 Remove Key
+  static Future<void> remove(String key) async {
+    await _prefs?.remove(key);
+  }
+
+  /// 🔹 Clear All
+  static Future<void> clear() async {
+    await _prefs?.clear();
   }
 }

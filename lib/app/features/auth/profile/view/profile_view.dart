@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../services/auth_service.dart';
+import '../../../../routes/app_routes.dart';
+
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
@@ -106,8 +109,12 @@ class ProfileView extends StatelessWidget {
               icon: Icons.logout,
               title: "Logout",
               color: Colors.orange,
-              onTap: () {
-                // 👉 Logout logic
+              onTap: () async {
+                final authService = Get.find<AuthService>();
+
+                await authService.logout();
+
+                Get.offAllNamed(AppRoutes.login);
               },
             ),
           ],

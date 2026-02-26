@@ -8,19 +8,25 @@ import '../app/features/product/model/product_model.dart';
 class ProductService {
   final Dio _dio = DioClient().dio;
 
+  /// ===============================
   /// ✅ Get All Products
+  /// ===============================
   Future<Response> getProducts() async {
-    return await _dio.get(ApiConstants.products);
+    return await _dio.get(
+      ApiConstants.products,
+    );
   }
 
-  /// ✅ Create Product (Correct Version)
+  /// ===============================
+  /// ✅ Create Product
+  /// ===============================
   Future<Response> createProduct({
     required ProductModel product,
     File? imageFile,
   }) async {
 
     final formData = FormData.fromMap({
-      /// 🔥 IMPORTANT: Send JSON as string inside "data"
+      /// 🔥 Backend expects JSON string inside "data"
       "data": jsonEncode(product.toJson()),
 
       if (imageFile != null)
@@ -33,6 +39,41 @@ class ProductService {
     return await _dio.post(
       ApiConstants.products,
       data: formData,
+    );
+  }
+
+  /// ===============================
+  /// ✅ Update Product (PUT)
+  /// ===============================
+  Future<Response> updateProduct({
+    required String id,
+    required ProductModel product,
+    File? imageFile,
+  }) async {
+
+    final formData = FormData.fromMap({
+      /// 🔥 Same structure as create
+      "data": jsonEncode(product.toJson()),
+
+      if (imageFile != null)
+        "image": await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        ),
+    });
+
+    return await _dio.put(
+      "${ApiConstants.products}/$id",
+      data: formData,
+    );
+  }
+
+  /// ===============================
+  /// ✅ Delete Product
+  /// ===============================
+  Future<Response> deleteProduct(String id) async {
+    return await _dio.delete(
+      "${ApiConstants.products}/$id",
     );
   }
 }

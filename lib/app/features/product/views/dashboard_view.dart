@@ -5,15 +5,19 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 
 import '../../../routes/app_routes.dart';
-import '../controllers/dashboard_controller.dart';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/dashboard_controller.dart';
+import '../controllers/product_controller.dart';
 import '../model/product_model.dart';
-import '../../../routes/app_routes.dart';
 
-class DashboardView extends GetView<DashboardController> {
+
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../routes/app_routes.dart';
+import '../controllers/product_controller.dart';
+import '../model/product_model.dart';
+
+class DashboardView extends GetView<ProductController> {
   const DashboardView({super.key});
 
   @override
@@ -26,27 +30,36 @@ class DashboardView extends GetView<DashboardController> {
 
             /// 🔵 HEADER
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-              decoration: const BoxDecoration(
-                color: Color(0xFF2F6FED),
+              padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 30.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2F6FED),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+                  bottomLeft: Radius.circular(30.r),
+                  bottomRight: Radius.circular(30.r),
                 ),
               ),
               child: Row(
-                children: const [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundImage:
-                    NetworkImage("https://i.pravatar.cc/150?img=3"),
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Get.toNamed(AppRoutes.profile);
+                    },
+                    child: CircleAvatar(
+                      radius: 22.r,
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      child: Icon(
+                        Icons.person_outline, // better profile icon
+                        color: Colors.white,
+                        size: 22.sp,
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Text(
                     "My Products",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -54,25 +67,25 @@ class DashboardView extends GetView<DashboardController> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
 
             /// BODY
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    const Text(
+                    Text(
                       "All Products",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
 
                     /// GRID
                     Expanded(
@@ -90,10 +103,10 @@ class DashboardView extends GetView<DashboardController> {
                         return GridView.builder(
                           itemCount: controller.products.length,
                           gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16.w,
+                            mainAxisSpacing: 16.h,
                             childAspectRatio: 0.72,
                           ),
                           itemBuilder: (context, index) {
@@ -108,24 +121,25 @@ class DashboardView extends GetView<DashboardController> {
 
                     /// CREATE BUTTON
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
+                      padding: EdgeInsets.only(bottom: 20.h),
                       child: SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 56.h,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2F6FED),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius:
+                              BorderRadius.circular(30.r),
                             ),
                           ),
                           onPressed: () {
                             Get.toNamed(AppRoutes.addProduct);
                           },
-                          child: const Text(
+                          child: Text(
                             "Create Product",
                             style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -185,128 +199,140 @@ class ProductCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
           /// IMAGE
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(18)),
-                child: Image.network(
-                  product.image ?? "https://via.placeholder.com/300",
-                  height: 120,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+          ClipRRect(
+            borderRadius:
+            BorderRadius.vertical(top: Radius.circular(18.r)),
+            child: AspectRatio(
+              aspectRatio: 1.4,
+              child: Image.network(
+                product.image ?? '',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: Colors.grey.shade200,
                 ),
               ),
-
-              if (product.category != null)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      product.category!.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2F6FED),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    "\$${product.price}",
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
 
-          /// DETAILS
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          /// DETAILS (🔥 FIXED AREA)
+          Expanded(   // ⭐ IMPORTANT FIX
+            child: Padding(
+              padding: EdgeInsets.all(10.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  product.stock > 0
-                      ? "✓ In Stock"
-                      : "Out of Stock",
-                  style: TextStyle(
-                    color: product.stock > 0
-                        ? Colors.green
-                        : Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                /// VIEW DETAILS
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    Get.toNamed(
-                      AppRoutes.serviceDetail,
-                      arguments: product,
-                    );
-                  },
-                  child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F0FF),
-                      borderRadius:
-                      BorderRadius.circular(12),
+                  /// NAME
+                  Text(
+                    product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
                     ),
-                    child: const Center(
-                      child: Text(
-                        "View Details",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF2F6FED),
-                          fontWeight: FontWeight.w600,
+                  ),
+
+                  SizedBox(height: 4.h),
+
+                  /// STOCK
+                  Text(
+                    product.stock > 0
+                        ? "✓ In Stock"
+                        : "Out of Stock",
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: product.stock > 0
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  ),
+
+                  const Spacer(), // ⭐ pushes buttons to bottom safely
+
+                  /// BUTTONS
+                  Row(
+                    children: [
+
+                      /// VIEW
+                      Expanded(
+                        child: InkWell(
+                          borderRadius:
+                          BorderRadius.circular(10.r),
+                          onTap: () {
+                            Get.toNamed(
+                              AppRoutes.serviceDetail,
+                              arguments: product,
+                            );
+                          },
+                          child: Container(
+                            padding:
+                            EdgeInsets.symmetric(vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F0FF),
+                              borderRadius:
+                              BorderRadius.circular(10.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "View",
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color:
+                                  const Color(0xFF2F6FED),
+                                  fontWeight:
+                                  FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+
+                      SizedBox(width: 6.w),
+
+                      /// EDIT
+                      InkWell(
+                        borderRadius:
+                        BorderRadius.circular(16.r),
+                        onTap: () {
+                          Get.toNamed(
+                            AppRoutes.editProduct,
+                            arguments: product,
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 6.h),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                            BorderRadius.circular(16.r),
+                            border: Border.all(
+                                color: Colors.grey.shade300),
+                          ),
+                          child: Text(
+                            "Edit",
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

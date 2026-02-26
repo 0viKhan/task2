@@ -41,7 +41,8 @@ class LoginController extends GetxController {
         }
 
         /// ✅ Save token
-        await PrefService.to.saveToken(token.toString());
+        /// ✅ Save token
+        await PrefService.setString("token", token.toString());
 
         print("TOKEN SAVED: $token");
 
